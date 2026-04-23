@@ -23,7 +23,7 @@ function Login() {
       navigate("/dashboard");
     } catch (error) {
       alert(error.response?.data?.message || "Login failed");
-    }
+    }   
   };
 
   return (
