@@ -3,29 +3,43 @@ import axios from "axios";
 
 function Dashboard() {
   const [items, setItems] = useState([]);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchItems = async () => {
+  const API = "https://lost-and-found-mps8.onrender.com";
+
+  const fetchData = async () => {
     try {
-      const res = await axios.get(
-        "https://lost-and-found-mps8.onrender.com/api/items"
-      );
-      setItems(res.data);
+      const token = localStorage.getItem("token");
+
+      // 🔹 Get user info
+      const userRes = await axios.get(`${API}/api/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      setUser(userRes.data);
+
+      // 🔹 Get items
+      const itemsRes = await axios.get(`${API}/api/items`);
+      setItems(itemsRes.data);
+
     } catch (error) {
-      console.error("Error fetching items", error);
+      console.error(error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchItems();
+    fetchData();
   }, []);
 
   return (
     <div style={styles.container}>
       
-      {/* Header */}
+      {/* HEADER */}
       <div style={styles.header}>
         <h2>📦 Lost & Found Dashboard</h2>
 
@@ -40,22 +54,43 @@ function Dashboard() {
         </button>
       </div>
 
-      {/* Loading */}
+      {/* USER INFO */}
+      {user && (
+        <div style={styles.userCard}>
+          <h3>👤 {user.name}</h3>
+          <p>{user.email}</p>
+        </div>
+      )}
+
+      {/* ITEMS */}
       {loading ? (
-        <p>Loading items...</p>
-      ) : items.length === 0 ? (
-        <p>No items found</p>
+        <p style={{ textAlign: "center" }}>Loading items...</p>
       ) : (
         <div style={styles.grid}>
           {items.map((item) => (
             <div key={item._id} style={styles.card}>
-              
               <h3>{item.itemName}</h3>
-              <p><strong>Type:</strong> {item.type}</p>
-              <p>{item.description}</p>
-              <p><strong>Location:</strong> {item.location}</p>
-              <p><strong>Contact:</strong> {item.contactInfo}</p>
 
+              <span
+                style={{
+                  ...styles.badge,
+                  backgroundColor:
+                    item.type === "Lost" ? "#ff4d4f" : "#52c41a"
+                }}
+              >
+                {item.type}
+              </span>
+
+              <p>{item.description}</p>
+
+              <p><strong>📍 Location:</strong> {item.location}</p>
+              <p><strong>📞 Contact:</strong> {item.contactInfo}</p>
+
+              {item.user && (
+                <p style={{ fontSize: "12px", color: "#888" }}>
+                  Posted by: {item.user.name}
+                </p>
+              )}
             </div>
           ))}
         </div>
@@ -67,34 +102,61 @@ function Dashboard() {
 export default Dashboard;
 
 
+
 // 🎨 STYLES
 const styles = {
   container: {
     padding: "20px",
-    fontFamily: "Arial"
+    fontFamily: "Segoe UI, sans-serif",
+    background: "#f5f7fa",
+    minHeight: "100vh"
   },
+
   header: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center"
+    alignItems: "center",
+    marginBottom: "20px"
   },
+
   logoutBtn: {
-    padding: "8px 12px",
-    backgroundColor: "red",
+    padding: "8px 14px",
+    background: "#ff4d4f",
     color: "white",
     border: "none",
+    borderRadius: "6px",
     cursor: "pointer"
   },
+
+  userCard: {
+    background: "white",
+    padding: "15px",
+    borderRadius: "10px",
+    marginBottom: "20px",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+  },
+
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-    gap: "15px",
-    marginTop: "20px"
+    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+    gap: "20px"
   },
+
   card: {
+    background: "white",
     padding: "15px",
-    border: "1px solid #ddd",
-    borderRadius: "10px",
-    boxShadow: "0 2px 5px rgba(0,0,0,0.1)"
+    borderRadius: "12px",
+    boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+    position: "relative"
+  },
+
+  badge: {
+    position: "absolute",
+    top: "10px",
+    right: "10px",
+    padding: "4px 8px",
+    borderRadius: "6px",
+    color: "white",
+    fontSize: "12px"
   }
 };
