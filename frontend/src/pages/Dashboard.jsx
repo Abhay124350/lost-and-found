@@ -6,22 +6,28 @@ function Dashboard() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const [form, setForm] = useState({
+    itemName: "",
+    description: "",
+    type: "Lost",
+    location: "",
+    contactInfo: ""
+  });
+
   const API = "https://lost-and-found-mps8.onrender.com";
 
+  // 🔹 Fetch user + items
   const fetchData = async () => {
     try {
       const token = localStorage.getItem("token");
 
-      // 🔹 Get user info
+      // user info
       const userRes = await axios.get(`${API}/api/profile`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+        headers: { Authorization: `Bearer ${token}` }
       });
-
       setUser(userRes.data);
 
-      // 🔹 Get items
+      // items
       const itemsRes = await axios.get(`${API}/api/items`);
       setItems(itemsRes.data);
 
@@ -36,9 +42,38 @@ function Dashboard() {
     fetchData();
   }, []);
 
+  // 🔹 Add item
+  const handleAddItem = async (e) => {
+    e.preventDefault();
+
+    try {
+      const token = localStorage.getItem("token");
+
+      await axios.post(`${API}/api/items`, form, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      alert("Item added successfully");
+
+      // reset form
+      setForm({
+        itemName: "",
+        description: "",
+        type: "Lost",
+        location: "",
+        contactInfo: ""
+      });
+
+      fetchData();
+
+    } catch (error) {
+      alert(error.response?.data?.message || "Error adding item");
+    }
+  };
+
   return (
     <div style={styles.container}>
-      
+
       {/* HEADER */}
       <div style={styles.header}>
         <h2>📦 Lost & Found Dashboard</h2>
@@ -62,6 +97,58 @@ function Dashboard() {
         </div>
       )}
 
+      {/* ADD ITEM FORM */}
+      <div style={styles.formCard}>
+        <h3>➕ Add Item</h3>
+
+        <form onSubmit={handleAddItem} style={styles.form}>
+          <input
+            placeholder="Item Name"
+            value={form.itemName}
+            onChange={(e) =>
+              setForm({ ...form, itemName: e.target.value })
+            }
+            required
+          />
+
+          <input
+            placeholder="Description"
+            value={form.description}
+            onChange={(e) =>
+              setForm({ ...form, description: e.target.value })
+            }
+          />
+
+          <select
+            value={form.type}
+            onChange={(e) =>
+              setForm({ ...form, type: e.target.value })
+            }
+          >
+            <option value="Lost">Lost</option>
+            <option value="Found">Found</option>
+          </select>
+
+          <input
+            placeholder="Location"
+            value={form.location}
+            onChange={(e) =>
+              setForm({ ...form, location: e.target.value })
+            }
+          />
+
+          <input
+            placeholder="Contact Info"
+            value={form.contactInfo}
+            onChange={(e) =>
+              setForm({ ...form, contactInfo: e.target.value })
+            }
+          />
+
+          <button type="submit">Add Item</button>
+        </form>
+      </div>
+
       {/* ITEMS */}
       {loading ? (
         <p style={{ textAlign: "center" }}>Loading items...</p>
@@ -82,12 +169,11 @@ function Dashboard() {
               </span>
 
               <p>{item.description}</p>
-
               <p><strong>📍 Location:</strong> {item.location}</p>
               <p><strong>📞 Contact:</strong> {item.contactInfo}</p>
 
               {item.user && (
-                <p style={{ fontSize: "12px", color: "#888" }}>
+                <p style={styles.userTag}>
                   Posted by: {item.user.name}
                 </p>
               )}
@@ -136,6 +222,19 @@ const styles = {
     boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
   },
 
+  formCard: {
+    background: "white",
+    padding: "20px",
+    borderRadius: "10px",
+    marginBottom: "20px",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+  },
+
+  form: {
+    display: "grid",
+    gap: "10px"
+  },
+
   grid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
@@ -158,5 +257,11 @@ const styles = {
     borderRadius: "6px",
     color: "white",
     fontSize: "12px"
+  },
+
+  userTag: {
+    fontSize: "12px",
+    color: "#888",
+    marginTop: "10px"
   }
 };
