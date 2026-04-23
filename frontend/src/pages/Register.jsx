@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import "./Register.css";
 
 function Register() {
   const [form, setForm] = useState({
@@ -22,33 +23,35 @@ function Register() {
 
       alert("Registered successfully");
 
-      // 👉 redirect to login
       navigate("/login");
-
     } catch (error) {
       alert(error.response?.data?.message || "Registration failed");
     }
   };
 
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <h2>Register</h2>
+    <div className="register-container">
+      <form className="register-form" onSubmit={handleSubmit}>
+        <h2>Create Account</h2>
 
         <input
-          placeholder="Name"
+          type="text"
+          placeholder="Full Name"
           value={form.name}
           onChange={(e) =>
             setForm({ ...form, name: e.target.value })
           }
+          required
         />
 
         <input
-          placeholder="Email"
+          type="email"
+          placeholder="Email Address"
           value={form.email}
           onChange={(e) =>
             setForm({ ...form, email: e.target.value })
           }
+          required
         />
 
         <input
@@ -58,16 +61,16 @@ function Register() {
           onChange={(e) =>
             setForm({ ...form, password: e.target.value })
           }
+          required
         />
 
         <button type="submit">Register</button>
-      </form>
 
-      {/* 🔗 Navigation */}
-      <p>
-        Already have an account?{" "}
-        <Link to="/login">Login</Link>
-      </p>
+        <p>
+          Already have an account?{" "}
+          <Link to="/login">Login</Link>
+        </p>
+      </form>
     </div>
   );
 }
