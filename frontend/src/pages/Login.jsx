@@ -9,7 +9,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const res = await axios.post("http://localhost:5000/api/login", form);
+    const res = await axios.post("https://lost-and-found-mps8.onrender.com/", form);
 
     localStorage.setItem("token", res.data.token);
 

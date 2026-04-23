@@ -5,7 +5,7 @@ function Dashboard() {
   const [items, setItems] = useState([]);
 
   const fetchItems = async () => {
-    const res = await axios.get("http://localhost:5000/api/items");
+    const res = await axios.get("https://lost-and-found-mps8.onrender.com/");
     setItems(res.data);
   };
 
