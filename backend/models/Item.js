@@ -16,7 +16,7 @@ const itemSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  contactInfo: String,
+  contactInfo: String,  
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User"

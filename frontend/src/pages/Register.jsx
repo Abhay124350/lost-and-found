@@ -1,77 +1,216 @@
 import { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import "./Register.css";
+
+const s = {
+  page: {
+    minHeight: "100vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "#f5f4f0",
+    fontFamily: "'DM Sans', sans-serif",
+    padding: "1rem",
+  },
+  card: {
+    background: "#ffffff",
+    borderRadius: "16px",
+    padding: "2.5rem 2rem",
+    width: "100%",
+    maxWidth: "420px",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 4px 24px rgba(0,0,0,0.06)",
+  },
+  logoWrap: {
+    width: "40px",
+    height: "40px",
+    borderRadius: "12px",
+    background: "#1D9E75",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: "1.5rem",
+  },
+  title: {
+    fontFamily: "'DM Serif Display', serif",
+    fontSize: "26px",
+    fontWeight: 400,
+    color: "#1a1a1a",
+    margin: "0 0 6px",
+  },
+  subtitle: {
+    fontSize: "14px",
+    color: "#888",
+    margin: "0 0 2rem",
+    lineHeight: 1.5,
+  },
+  fieldWrap: {
+    marginBottom: "1.25rem",
+  },
+  label: {
+    display: "block",
+    fontSize: "11px",
+    fontWeight: 500,
+    textTransform: "uppercase",
+    letterSpacing: "0.07em",
+    color: "#999",
+    marginBottom: "6px",
+  },
+  input: {
+    width: "100%",
+    boxSizing: "border-box",
+    padding: "10px 14px",
+    border: "1px solid #e2e2de",
+    borderRadius: "10px",
+    fontSize: "15px",
+    fontFamily: "'DM Sans', sans-serif",
+    color: "#1a1a1a",
+    background: "#fafaf8",
+    outline: "none",
+    transition: "border-color 0.15s, box-shadow 0.15s",
+  },
+  button: {
+    width: "100%",
+    padding: "12px",
+    marginTop: "0.75rem",
+    borderRadius: "10px",
+    border: "none",
+    background: "#1D9E75",
+    color: "#fff",
+    fontFamily: "'DM Sans', sans-serif",
+    fontSize: "15px",
+    fontWeight: 500,
+    cursor: "pointer",
+    transition: "background 0.15s",
+  },
+  footer: {
+    textAlign: "center",
+    marginTop: "1.5rem",
+    fontSize: "14px",
+    color: "#888",
+  },
+  link: {
+    color: "#1D9E75",
+    textDecoration: "none",
+    fontWeight: 500,
+  },
+};
 
 function Register() {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: ""
-  });
-
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [focused, setFocused] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
     try {
-      await axios.post(
-        "https://lost-and-found-mps8.onrender.com/api/register",
-        form
-      );
-
+      await axios.post("http://localhost:5000/api/register", form);
       alert("Registered successfully");
-
       navigate("/login");
     } catch (error) {
       alert(error.response?.data?.message || "Registration failed");
+    } finally {
+      setLoading(false);
     }
   };
 
+  const focusStyle = (name) =>
+    focused === name
+      ? { borderColor: "#1D9E75", boxShadow: "0 0 0 3px rgba(29,158,117,0.12)" }
+      : {};
+
   return (
-    <div className="register-container">
-      <form className="register-form" onSubmit={handleSubmit}>
-        <h2>Create Account</h2>
+    <>
+      <link
+        href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500&display=swap"
+        rel="stylesheet"
+      />
+      <div style={s.page}>
+        <div style={s.card}>
 
-        <input
-          type="text"
-          placeholder="Full Name"
-          value={form.name}
-          onChange={(e) =>
-            setForm({ ...form, name: e.target.value })
-          }
-          required
-        />
+          {/* Logo mark */}
+          <div style={s.logoWrap}>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <circle cx="6" cy="6" r="2.5" fill="white" />
+              <circle cx="12" cy="6" r="2.5" fill="white" opacity="0.6" />
+              <circle cx="9" cy="12" r="2.5" fill="white" opacity="0.85" />
+            </svg>
+          </div>
 
-        <input
-          type="email"
-          placeholder="Email Address"
-          value={form.email}
-          onChange={(e) =>
-            setForm({ ...form, email: e.target.value })
-          }
-          required
-        />
+          <h1 style={s.title}>Create an account</h1>
+          <p style={s.subtitle}>
+            Join Lost &amp; Found — help reunite people with their belongings.
+          </p>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={(e) =>
-            setForm({ ...form, password: e.target.value })
-          }
-          required
-        />
+          <form onSubmit={handleSubmit}>
+            <div style={s.fieldWrap}>
+              <label style={s.label}>Full name</label>
+              <input
+                style={{ ...s.input, ...focusStyle("name") }}
+                type="text"
+                placeholder="Jane Smith"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                onFocus={() => setFocused("name")}
+                onBlur={() => setFocused("")}
+                required
+              />
+            </div>
 
-        <button type="submit">Register</button>
+            <div style={s.fieldWrap}>
+              <label style={s.label}>Email address</label>
+              <input
+                style={{ ...s.input, ...focusStyle("email") }}
+                type="email"
+                placeholder="jane@example.com"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                onFocus={() => setFocused("email")}
+                onBlur={() => setFocused("")}
+                required
+              />
+            </div>
 
-        <p>
-          Already have an account?{" "}
-          <Link to="/login">Login</Link>
-        </p>
-      </form>
-    </div>
+            <div style={s.fieldWrap}>
+              <label style={s.label}>Password</label>
+              <input
+                style={{ ...s.input, ...focusStyle("password") }}
+                type="password"
+                placeholder="Min. 8 characters"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                onFocus={() => setFocused("password")}
+                onBlur={() => setFocused("")}
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              style={{
+                ...s.button,
+                background: loading ? "#0F6E56" : "#1D9E75",
+                opacity: loading ? 0.85 : 1,
+              }}
+              onMouseEnter={(e) => !loading && (e.target.style.background = "#0F6E56")}
+              onMouseLeave={(e) => !loading && (e.target.style.background = "#1D9E75")}
+              disabled={loading}
+            >
+              {loading ? "Creating account…" : "Register"}
+            </button>
+          </form>
+
+          <p style={s.footer}>
+            Already have an account?{" "}
+            <Link to="/login" style={s.link}>
+              Sign in
+            </Link>
+          </p>
+
+        </div>
+      </div>
+    </>
   );
 }
 
