@@ -105,7 +105,7 @@ function Register() {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post("http://localhost:5000/api/register", form);
+      await axios.post("https://lost-and-found-mps8.onrender.com/api/register", form);
       alert("Registered successfully");
       navigate("/login");
     } catch (error) {
